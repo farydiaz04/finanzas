@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Finance",
+    title: "Finance v2",
   },
 };
 
@@ -47,8 +47,15 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <FinanceProvider>
             <ThemeSync />
-            {children}
-            <SiteFooter />
+            <div className="min-h-screen flex flex-col">
+              <main className="flex-1">
+                {children}
+              </main>
+              <SiteFooter />
+              <div className="fixed top-0 left-0 p-1 opacity-20 pointer-events-none text-[8px] z-[9999]">
+                v2.1-final
+              </div>
+            </div>
           </FinanceProvider>
         </ThemeProvider>
       </body>
