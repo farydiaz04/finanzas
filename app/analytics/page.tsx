@@ -197,9 +197,9 @@ export default function AnalyticsPage() {
 
             {timeRange === "custom" && (
                 <div className="flex gap-2 items-center bg-secondary/30 p-2 rounded-xl border border-border/50">
-                    <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} onClick={e => e.currentTarget.showPicker()} className="bg-transparent text-sm p-1 rounded border-none focus:ring-0" />
+                    <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} onClick={e => e.currentTarget.showPicker()} className="bg-transparent text-foreground text-sm p-1 rounded border-none focus:ring-0" />
                     <span className="text-muted-foreground">-</span>
-                    <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} onClick={e => e.currentTarget.showPicker()} className="bg-transparent text-sm p-1 rounded border-none focus:ring-0" />
+                    <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} onClick={e => e.currentTarget.showPicker()} className="bg-transparent text-foreground text-sm p-1 rounded border-none focus:ring-0" />
                 </div>
             )}
 

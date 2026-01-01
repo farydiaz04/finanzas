@@ -184,11 +184,12 @@ export default function AddTransactionPage() {
                             type="text"
                             inputMode="decimal"
                             placeholder="0"
-                            className="text-4xl font-bold h-16 pl-12 bg-transparent border-none shadow-none focus-visible:ring-0 px-0 placeholder:text-muted-foreground/30"
+                            className="text-4xl font-bold h-16 pl-12 pr-4 bg-transparent border-none shadow-none focus-visible:ring-0 placeholder:text-muted-foreground/30"
                             value={amount}
                             onChange={(e) => {
                                 const val = e.target.value.replace(/[^0-9.]/g, '')
-                                setAmount(val)
+                                const num = parseFormattedNumber(val)
+                                setAmount(val === '' ? '' : formatNumber(num))
                             }}
                         />
                         <span className="absolute left-2 top-1/2 -translate-y-1/2 text-2xl text-muted-foreground">$</span>
