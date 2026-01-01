@@ -539,15 +539,20 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
 
     const syncSettings = async (newSettings: AppSettings, newPool: number) => {
         if (!user) return
-        await supabase.from('user_settings').upsert({
-            user_id: user.id,
-            currency: newSettings.currency,
-            language: newSettings.language,
-            user_name: newSettings.userName,
-            theme: newSettings.theme,
-            manual_savings_pool: newPool,
-            updated_at: new Date().toISOString()
-        })
+        try {
+            const { error } = await supabase.from('user_settings').upsert({
+                user_id: user.id,
+                currency: newSettings.currency,
+                language: newSettings.language,
+                user_name: newSettings.userName,
+                theme: newSettings.theme,
+                manual_savings_pool: newPool,
+                updated_at: new Date().toISOString()
+            })
+            if (error) console.error("Error syncing settings:", error)
+        } catch (err) {
+            console.error("Failed to sync settings:", err)
+        }
     }
 
     const addTransaction = async (tx: Omit<Transaction, "id">) => {
@@ -759,7 +764,8 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
             })
             .reduce((acc, e) => acc + e.amount, 0)
 
-        return bankBalance - pendingFixed - manualSavingsPool
+        const safeToSpend = bankBalance - pendingFixed - manualSavingsPool
+        return income === 0 ? 0 : (safeToSpend < 0 ? 0 : safeToSpend)
     }
 
     const t = (key: string) => {

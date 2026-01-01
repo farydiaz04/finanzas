@@ -172,7 +172,6 @@ export default function AddTransactionPage() {
                             className="text-4xl font-bold h-16 pl-12 bg-transparent border-none shadow-none focus-visible:ring-0 px-0 placeholder:text-muted-foreground/30"
                             value={amount}
                             onChange={(e) => handleNumericInputChange(e.target.value, setAmount)}
-                            autoFocus
                         />
                         <span className="absolute left-2 top-1/2 -translate-y-1/2 text-2xl text-muted-foreground">$</span>
                     </div>

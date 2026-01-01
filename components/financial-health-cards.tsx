@@ -21,10 +21,10 @@ export function FinancialHealthCards() {
 
     // Ratios
     const effectiveIncome = totalIncome || 1
-    const fixedRatio = (totalFixedObligation / effectiveIncome) * 100
-    const variableRatio = (totalVariableExpenses / effectiveIncome) * 100
-    // Saving metric: Manual Pool / Total Income (Goals are now purely informational)
-    const totalSavingRate = (manualSavingsPool / effectiveIncome) * 100
+    const fixedRatio = totalIncome > 0 ? (totalFixedObligation / totalIncome) * 100 : 0
+    const variableRatio = totalIncome > 0 ? (totalVariableExpenses / totalIncome) * 100 : 0
+    // Saving metric: Manual Pool / Total Income
+    const totalSavingRate = totalIncome > 0 ? (manualSavingsPool / totalIncome) * 100 : 0
 
     return (
         <section className="space-y-4">

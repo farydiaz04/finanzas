@@ -33,10 +33,10 @@ export function BalanceCard() {
             .reduce((acc, e) => acc + e.amount, 0)
 
         const expense = mainExpense + paidFixedThisMonth
-        const balance = income - expense
+        const balance = income === 0 ? 0 : income - expense
 
         return {
-            balance,
+            balance: balance < 0 && income === 0 ? 0 : balance,
             income,
             expense
         }
