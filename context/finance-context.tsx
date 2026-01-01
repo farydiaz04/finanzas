@@ -521,8 +521,9 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
         fetchData()
     }, [user])
 
+    // Auto-save to localStorage ONLY for offline/unauthenticated users
     useEffect(() => {
-        if (isLoaded) {
+        if (!user && isLoaded) {
             localStorage.setItem("finance-app-data", JSON.stringify({
                 transactions,
                 fixedExpenses,
@@ -533,7 +534,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
                 settings
             }))
         }
-    }, [transactions, fixedExpenses, categories, savingsGoals, manualSavingsPool, settings, isLoaded])
+    }, [user, transactions, fixedExpenses, categories, savingsGoals, savingsTransactions, manualSavingsPool, settings, isLoaded])
 
     const generateId = () => {
         if (typeof crypto !== 'undefined' && crypto.randomUUID) {
@@ -562,18 +563,8 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
 
             if (error) {
                 console.error("Error syncing settings:", error)
-            } else {
-                // Immediate local save as well to be sure
-                localStorage.setItem("finance-app-data", JSON.stringify({
-                    transactions,
-                    fixedExpenses,
-                    categories,
-                    savingsGoals,
-                    savingsTransactions,
-                    manualSavingsPool: newPool,
-                    settings: newSettings
-                }))
             }
+            // No localStorage save - Supabase is the only source of truth for authenticated users
         } catch (err) {
             console.error("Failed to sync settings:", err)
         } finally {
