@@ -504,7 +504,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
                     ...prev,
                     currency: meta.currency,
                     language: meta.language,
-                    user_name: meta.user_name,
+                    userName: meta.user_name || prev.userName,
                     theme: meta.theme || "system"
                 }))
                 setManualSavingsPool(Number(meta.manual_savings_pool))
@@ -551,8 +551,22 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
                 theme: newSettings.theme,
                 manual_savings_pool: newPool,
                 updated_at: new Date().toISOString()
-            })
-            if (error) console.error("Error syncing settings:", error)
+            }, { onConflict: 'user_id' })
+
+            if (error) {
+                console.error("Error syncing settings:", error)
+            } else {
+                // Immediate local save as well to be sure
+                localStorage.setItem("finance-app-data", JSON.stringify({
+                    transactions,
+                    fixedExpenses,
+                    categories,
+                    savingsGoals,
+                    savingsTransactions,
+                    manualSavingsPool: newPool,
+                    settings: newSettings
+                }))
+            }
         } catch (err) {
             console.error("Failed to sync settings:", err)
         } finally {
