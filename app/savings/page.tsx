@@ -248,7 +248,6 @@ export default function SavingsPage() {
                                         type="text"
                                         inputMode="numeric"
                                         className="h-10 pl-7 rounded-xl bg-background border-primary/30 text-lg font-bold"
-                                        autoFocus
                                         value={tempPoolValue}
                                         onChange={(e) => handleNumericInputChange(e.target.value, setTempPoolValue)}
                                     />

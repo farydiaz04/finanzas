@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { Keypad } from "@/components/ui/keypad"
 import { cn } from "@/lib/utils"
 import { useFinance } from "@/context/finance-context"
 import { motion, AnimatePresence } from "framer-motion"
@@ -28,21 +29,36 @@ export default function AddTransactionPage() {
         t,
         settings
     } = useFinance()
-    const [type, setType] = useState<"expense" | "income">("expense")
 
-    // Form States
-    const [amount, setAmount] = useState("")
+    const [amount, setAmount] = useState("0")
     const [title, setTitle] = useState("")
-    const [date, setDate] = useState(new Date().toISOString().split('T')[0])
-
-    // Filter categories by type
-    const typeCategories = categories.filter(c => c.type === type)
+    const [type, setType] = useState<"expense" | "income">("expense")
     const [selectedCategory, setSelectedCategory] = useState("")
-
-    // Category Creation State
+    const [date, setDate] = useState(new Date().toISOString().split('T')[0])
     const [isCreatingCategory, setIsCreatingCategory] = useState(false)
     const [newCategoryName, setNewCategoryName] = useState("")
     const [newCategoryIcon, setNewCategoryIcon] = useState("Circle")
+
+    const handleKeyPress = (key: string) => {
+        if (amount === "0" && key !== ".") {
+            setAmount(key)
+        } else {
+            if (key === "." && amount.includes(".")) return
+            if (amount.replace(".", "").length >= 7) return
+            setAmount((prev) => prev + key)
+        }
+    }
+
+    const handleDeleteDigit = () => {
+        if (amount.length === 1) {
+            setAmount("0")
+        } else {
+            setAmount((prev) => prev.slice(0, -1))
+        }
+    }
+
+    // Filter categories by type
+    const typeCategories = categories.filter(c => c.type === type)
 
     // Curated Icon List
     const iconList = [
@@ -161,19 +177,14 @@ export default function AddTransactionPage() {
                     </button>
                 </div>
 
-                {/* Amount Input */}
+                {/* Amount Display */}
                 <div className="space-y-2">
                     <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">{t("Amount")}</label>
-                    <div className="relative">
-                        <Input
-                            type="text"
-                            inputMode="numeric"
-                            placeholder="0"
-                            className="text-4xl font-bold h-16 pl-12 bg-transparent border-none shadow-none focus-visible:ring-0 px-0 placeholder:text-muted-foreground/30"
-                            value={amount}
-                            onChange={(e) => handleNumericInputChange(e.target.value, setAmount)}
-                        />
-                        <span className="absolute left-2 top-1/2 -translate-y-1/2 text-2xl text-muted-foreground">$</span>
+                    <div className="flex flex-col items-center justify-center py-4 bg-secondary/20 rounded-2xl">
+                        <div className="text-5xl font-bold tracking-tighter tabular-nums flex items-end">
+                            <span className="text-3xl text-muted-foreground mb-1 mr-1">$</span>
+                            {formatNumber(parseFormattedNumber(amount))}
+                        </div>
                     </div>
                 </div>
 
@@ -237,8 +248,13 @@ export default function AddTransactionPage() {
                     </div>
                 </div>
 
+                {/* Keypad */}
+                <div className="bg-secondary/30 rounded-3xl p-2">
+                    <Keypad onKeyPress={handleKeyPress} onDelete={handleDeleteDigit} onConfirm={() => { }} />
+                </div>
+
                 {/* Spacer */}
-                <div className="h-20" />
+                <div className="h-32" />
             </div>
 
             {/* Create Category Modal */}
