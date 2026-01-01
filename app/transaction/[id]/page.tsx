@@ -146,11 +146,12 @@ export default function EditTransactionPage() {
                     <input
                         type="text"
                         inputMode="decimal"
-                        className="text-6xl font-bold tracking-tighter tabular-nums bg-transparent border-none text-center focus:ring-0 w-full outline-none"
+                        className="text-6xl font-bold tracking-tighter tabular-nums bg-transparent border-none text-center focus:ring-0 w-full outline-none pl-16 pr-4"
                         value={amount}
                         onChange={(e) => {
                             const val = e.target.value.replace(/[^0-9.]/g, '')
-                            setAmount(val)
+                            const num = parseFormattedNumber(val)
+                            setAmount(val === '' ? '' : formatNumber(num))
                         }}
                     />
                 </div>
