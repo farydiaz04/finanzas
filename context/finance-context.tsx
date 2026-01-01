@@ -548,23 +548,53 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
     }
 
     const syncSettings = async (newSettings: AppSettings, newPool: number) => {
-        if (!user) return
-        setIsSyncing(true)
-        try {
-            const { error } = await supabase.from('user_settings').upsert({
-                user_id: user.id,
-                currency: newSettings.currency,
-                language: newSettings.language,
-                user_name: newSettings.userName,
-                theme: newSettings.theme,
-                manual_savings_pool: newPool,
-                updated_at: new Date().toISOString()
-            }, { onConflict: 'user_id' })
+        if (!user) {
+            console.warn("Cannot sync settings: no user authenticated")
+            return
+        }
 
-            if (error) {
-                console.error("Error syncing settings:", error)
+        setIsSyncing(true)
+        console.log("Syncing settings to Supabase:", { newPool, newSettings })
+
+        try {
+            // Try UPDATE first
+            const { data: updateData, error: updateError } = await supabase
+                .from('user_settings')
+                .update({
+                    currency: newSettings.currency,
+                    language: newSettings.language,
+                    user_name: newSettings.userName,
+                    theme: newSettings.theme,
+                    manual_savings_pool: newPool,
+                    updated_at: new Date().toISOString()
+                })
+                .eq('user_id', user.id)
+                .select()
+
+            if (updateError) {
+                console.error("Update error:", updateError)
+                // If update fails, try INSERT
+                const { error: insertError } = await supabase
+                    .from('user_settings')
+                    .insert({
+                        user_id: user.id,
+                        currency: newSettings.currency,
+                        language: newSettings.language,
+                        user_name: newSettings.userName,
+                        theme: newSettings.theme,
+                        manual_savings_pool: newPool,
+                        updated_at: new Date().toISOString()
+                    })
+
+                if (insertError) {
+                    console.error("Insert error:", insertError)
+                    throw insertError
+                } else {
+                    console.log("Settings inserted successfully")
+                }
+            } else {
+                console.log("Settings updated successfully:", updateData)
             }
-            // No localStorage save - Supabase is the only source of truth for authenticated users
         } catch (err) {
             console.error("Failed to sync settings:", err)
         } finally {
