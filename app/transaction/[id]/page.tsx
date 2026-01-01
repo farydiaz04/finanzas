@@ -140,7 +140,7 @@ export default function EditTransactionPage() {
             </div>
 
             {/* Amount Input */}
-            <div className="flex-1 flex flex-col items-center justify-center space-y-2 py-4 px-6">
+            <div className="flex flex-col items-center justify-center space-y-2 py-6 px-6">
                 <div className="relative w-full text-center">
                     <span className="absolute left-1/4 top-1/2 -translate-y-1/2 text-4xl text-muted-foreground">$</span>
                     <input
@@ -158,7 +158,7 @@ export default function EditTransactionPage() {
             </div>
 
             {/* Categories */}
-            <div className="px-4 pb-4">
+            <div className="px-4 pb-4 pt-2">
                 <div className="flex gap-4 overflow-x-auto pb-4 no-scrollbar -mx-4 px-4">
                     {typeCategories.map((cat) => (
                         <button
@@ -191,7 +191,7 @@ export default function EditTransactionPage() {
             </div>
 
             {/* Save Action */}
-            <div className="bg-secondary/30 rounded-t-3xl p-6 pb-12">
+            <div className="bg-secondary/30 rounded-t-3xl p-6 pb-24">
                 <Button className="w-full h-14 text-lg rounded-2xl shadow-xl" onClick={handleSave}>
                     {t("Update")}
                 </Button>
