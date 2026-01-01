@@ -425,7 +425,11 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
         localStorage.removeItem("finance-app-data")
     }
 
+    // Load from localStorage ONLY if no user (offline mode)
+    // When user is authenticated, Supabase data takes priority
     useEffect(() => {
+        if (user) return // Skip localStorage if user is logged in
+
         const savedData = localStorage.getItem("finance-app-data")
         if (savedData) {
             const parsed = JSON.parse(savedData)
@@ -438,7 +442,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
             if (parsed.settings) setSettings(prev => ({ ...prev, ...parsed.settings }))
         }
         setIsLoaded(true)
-    }, [])
+    }, [user])
 
     useEffect(() => {
         if (!user) return
@@ -507,8 +511,11 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
                     userName: meta.user_name || prev.userName,
                     theme: meta.theme || "system"
                 }))
-                setManualSavingsPool(Number(meta.manual_savings_pool))
+                setManualSavingsPool(Number(meta.manual_savings_pool) || 0)
             }
+
+            // Mark as loaded AFTER all Supabase data is fetched
+            setIsLoaded(true)
         }
 
         fetchData()
