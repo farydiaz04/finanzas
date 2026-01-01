@@ -84,6 +84,7 @@ interface FinanceContextType {
     getSafeToSpend: () => number
     manualSavingsPool: number
     setManualSavingsPool: (amount: number) => void
+    isSyncing: boolean
     t: (key: string) => string
 }
 
@@ -396,6 +397,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
         }
     })
     const [isLoaded, setIsLoaded] = useState(false)
+    const [isSyncing, setIsSyncing] = useState(false)
     const [user, setUser] = useState<User | null>(null)
 
     useEffect(() => {
@@ -502,7 +504,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
                     ...prev,
                     currency: meta.currency,
                     language: meta.language,
-                    userName: meta.user_name,
+                    user_name: meta.user_name,
                     theme: meta.theme || "system"
                 }))
                 setManualSavingsPool(Number(meta.manual_savings_pool))
@@ -539,6 +541,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
 
     const syncSettings = async (newSettings: AppSettings, newPool: number) => {
         if (!user) return
+        setIsSyncing(true)
         try {
             const { error } = await supabase.from('user_settings').upsert({
                 user_id: user.id,
@@ -552,6 +555,8 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
             if (error) console.error("Error syncing settings:", error)
         } catch (err) {
             console.error("Failed to sync settings:", err)
+        } finally {
+            setIsSyncing(false)
         }
     }
 
@@ -802,7 +807,8 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
             setManualSavingsPool: updateManualSavingsPool,
             user,
             signOut,
-            t
+            t,
+            isSyncing
         }}>
             {children}
         </FinanceContext.Provider>

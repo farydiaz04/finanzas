@@ -27,7 +27,8 @@ export default function SavingsPage() {
         manualSavingsPool,
         setManualSavingsPool,
         t,
-        settings
+        settings,
+        isSyncing
     } = useFinance()
 
     // Recommended Savings (Safe to Spend) - Guideline only
@@ -212,7 +213,15 @@ export default function SavingsPage() {
     return (
         <main className="min-h-screen bg-background pb-32 px-4 pt-6 max-w-md mx-auto space-y-6">
             <header className="px-1">
-                <h1 className="text-2xl font-bold tracking-tight">{t("Savings")}</h1>
+                <div className="flex justify-between items-center">
+                    <h1 className="text-2xl font-bold tracking-tight">{t("Savings")}</h1>
+                    {isSyncing && (
+                        <div className="flex items-center gap-1.5 text-[10px] font-bold text-primary animate-pulse uppercase tracking-widest bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
+                            <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce"></span>
+                            SINCRO...
+                        </div>
+                    )}
+                </div>
                 <p className="text-muted-foreground text-sm">
                     {t("Goals and accumulated savings")}
                 </p>

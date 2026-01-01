@@ -4,7 +4,6 @@ import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Keypad } from "@/components/ui/keypad"
 import { cn } from "@/lib/utils"
 import { useFinance } from "@/context/finance-context"
 import { motion, AnimatePresence } from "framer-motion"
@@ -177,14 +176,22 @@ export default function AddTransactionPage() {
                     </button>
                 </div>
 
-                {/* Amount Display */}
+                {/* Amount Input */}
                 <div className="space-y-2">
                     <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-1">{t("Amount")}</label>
-                    <div className="flex flex-col items-center justify-center py-4 bg-secondary/20 rounded-2xl">
-                        <div className="text-5xl font-bold tracking-tighter tabular-nums flex items-end">
-                            <span className="text-3xl text-muted-foreground mb-1 mr-1">$</span>
-                            {formatNumber(parseFormattedNumber(amount))}
-                        </div>
+                    <div className="relative">
+                        <Input
+                            type="text"
+                            inputMode="decimal"
+                            placeholder="0"
+                            className="text-4xl font-bold h-16 pl-12 bg-transparent border-none shadow-none focus-visible:ring-0 px-0 placeholder:text-muted-foreground/30"
+                            value={amount}
+                            onChange={(e) => {
+                                const val = e.target.value.replace(/[^0-9.]/g, '')
+                                setAmount(val)
+                            }}
+                        />
+                        <span className="absolute left-2 top-1/2 -translate-y-1/2 text-2xl text-muted-foreground">$</span>
                     </div>
                 </div>
 
@@ -246,11 +253,6 @@ export default function AddTransactionPage() {
                             </span>
                         </button>
                     </div>
-                </div>
-
-                {/* Keypad */}
-                <div className="bg-secondary/30 rounded-3xl p-2">
-                    <Keypad onKeyPress={handleKeyPress} onDelete={handleDeleteDigit} onConfirm={() => { }} />
                 </div>
 
                 {/* Spacer */}

@@ -139,11 +139,20 @@ export default function EditTransactionPage() {
                 </div>
             </div>
 
-            {/* Amount Display */}
-            <div className="flex-1 flex flex-col items-center justify-center space-y-2 py-4">
-                <div className="text-6xl font-bold tracking-tighter tabular-nums flex items-end">
-                    <span className="text-4xl text-muted-foreground mb-1 mr-1">$</span>
-                    {formatNumber(parseFormattedNumber(amount))}
+            {/* Amount Input */}
+            <div className="flex-1 flex flex-col items-center justify-center space-y-2 py-4 px-6">
+                <div className="relative w-full text-center">
+                    <span className="absolute left-1/4 top-1/2 -translate-y-1/2 text-4xl text-muted-foreground">$</span>
+                    <input
+                        type="text"
+                        inputMode="decimal"
+                        className="text-6xl font-bold tracking-tighter tabular-nums bg-transparent border-none text-center focus:ring-0 w-full outline-none"
+                        value={amount}
+                        onChange={(e) => {
+                            const val = e.target.value.replace(/[^0-9.]/g, '')
+                            setAmount(val)
+                        }}
+                    />
                 </div>
             </div>
 
@@ -180,15 +189,11 @@ export default function EditTransactionPage() {
                 </div>
             </div>
 
-            {/* Keypad & Action */}
-            <div className="bg-secondary/30 rounded-t-3xl p-2 pb-8">
-                <Keypad onKeyPress={handleKeyPress} onDelete={handleDeleteDigit} onConfirm={() => { }} />
-
-                <div className="px-4 mt-2">
-                    <Button size="lg" className="w-full h-14 text-lg rounded-2xl shadow-lg shadow-primary/20" onClick={handleSave}>
-                        {t("Update")}
-                    </Button>
-                </div>
+            {/* Save Action */}
+            <div className="bg-secondary/30 rounded-t-3xl p-6 pb-12">
+                <Button className="w-full h-14 text-lg rounded-2xl shadow-xl" onClick={handleSave}>
+                    {t("Update")}
+                </Button>
             </div>
         </motion.main>
     )
