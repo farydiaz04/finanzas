@@ -125,8 +125,19 @@ export default function PlannerPage() {
 
     const getStatus = (expense: FixedExpense) => expense.history?.[monthKey] || "pending"
 
-    const total = fixedExpenses.reduce((acc, e) => acc + e.amount, 0)
-    const remaining = fixedExpenses.filter(e => getStatus(e) !== "paid").reduce((acc, e) => acc + e.amount, 0)
+    const getActualAmount = (expense: FixedExpense) => {
+        const today = new Date().getDate()
+        // If it's the first quincena (1-14) and expense is split and falls in second quincena (15+)
+        if (isCurrentMonth && today < 15 && expense.isSplit && expense.day >= 15) {
+            return expense.amount / 2
+        }
+        return expense.amount
+    }
+
+    const total = fixedExpenses.reduce((acc, e) => acc + getActualAmount(e), 0)
+    const remaining = fixedExpenses
+        .filter(e => getStatus(e) !== "paid")
+        .reduce((acc, e) => acc + getActualAmount(e), 0)
 
     return (
         <main className="min-h-screen pb-32 px-4 pt-6 max-w-md mx-auto space-y-6">
@@ -266,17 +277,19 @@ function SwipeableExpenseCard({ expense, status, isLate, isDueSoon, formatMoney,
             <motion.div
                 drag="x"
                 dragConstraints={{ left: -120, right: 0 }}
-                onTap={onToggle}
                 className="absolute inset-0 bg-background rounded-2xl flex items-center gap-4 border border-border/50 shadow-sm p-0 z-10 hover:cursor-pointer"
                 whileTap={{ cursor: "grabbing" }}
             >
                 <div className="p-4 flex items-center gap-4 w-full">
-                    <div className={cn(
-                        "flex flex-col items-center justify-center h-14 w-14 rounded-2xl border bg-background transition-colors shrink-0",
-                        status === "paid" ? "border-green-500/50 text-green-600" :
-                            isLate ? "border-red-500/50 text-destructive" :
-                                isDueSoon ? "border-yellow-500/50 text-yellow-600" : "border-border text-muted-foreground"
-                    )}>
+                    <div
+                        onClick={(e) => { e.stopPropagation(); onToggle(); }}
+                        className={cn(
+                            "flex flex-col items-center justify-center h-14 w-14 rounded-2xl border bg-background transition-colors shrink-0 relative",
+                            status === "paid" ? "border-green-500/50 text-green-600" :
+                                isLate ? "border-red-500/50 text-destructive" :
+                                    isDueSoon ? "border-yellow-500/50 text-yellow-600" : "border-border text-muted-foreground"
+                        )}
+                    >
                         <span className="text-[10px] font-medium uppercase leading-none mb-1">{t("Day Label")}</span>
                         <span className="text-lg font-bold leading-none">{expense.day}</span>
                         {expense.isSplit && (
