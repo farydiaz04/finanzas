@@ -28,6 +28,7 @@ export interface FixedExpense {
     day: number // 1-31
     history: Record<string, ExpenseStatus>
     paidDates?: Record<string, string> // key: "YYYY-MM", value: ISO date
+    isSplit?: boolean
 }
 
 export interface Category {
@@ -247,6 +248,8 @@ const translations: Record<string, Record<string, string>> = {
         "Passwords do not match": "Las contraseñas no coinciden",
         "Password updated successfully": "Contraseña actualizada con éxito",
         "Error updating password": "Error al actualizar la contraseña",
+        "Split Payment": "Pago dividido (Quincena)",
+        "Split Hint": "Reserva el 50% en la primera quincena para gastos de la segunda.",
     },
     en: {
         "Balance Card": "Available Funds",
@@ -390,6 +393,8 @@ const translations: Record<string, Record<string, string>> = {
         "Passwords do not match": "Passwords do not match",
         "Password updated successfully": "Password updated successfully",
         "Error updating password": "Error updating password",
+        "Split Payment": "Split Payment (Bi-weekly)",
+        "Split Hint": "Reserve 50% in the first quincena for second quincena expenses.",
     }
 }
 
@@ -494,7 +499,8 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
                     amount: Number(e.amount),
                     day: e.day,
                     history: e.history || {},
-                    paidDates: e.paid_dates || {}
+                    paidDates: e.paid_dates || {},
+                    isSplit: e.is_split || false
                 })))
             }
 
@@ -682,7 +688,8 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
                 amount: newExp.amount,
                 day: newExp.day,
                 history: newExp.history,
-                paid_dates: newExp.paidDates || {}
+                paid_dates: newExp.paidDates || {},
+                is_split: newExp.isSplit || false
             })
         }
     }
@@ -696,6 +703,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
             if (updates.day !== undefined) dbUpdates.day = updates.day
             if (updates.history !== undefined) dbUpdates.history = updates.history
             if (updates.paidDates !== undefined) dbUpdates.paid_dates = updates.paidDates
+            if (updates.isSplit !== undefined) dbUpdates.is_split = updates.isSplit
 
             await supabase.from('fixed_expenses').update(dbUpdates).eq('id', id)
         }
@@ -831,7 +839,15 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
                 const status = e.history?.[currentMonthKey] || "pending"
                 return status === "pending" || status === "late"
             })
-            .reduce((acc, e) => acc + e.amount, 0)
+            .reduce((acc, e) => {
+                // Bi-weekly Split Logic:
+                // If it's the first quincena (day 1-15) AND the expense is marked as split 
+                // AND it falls in the second quincena (day > 15), only reserve 50%
+                if (currentDate.getDate() <= 15 && e.isSplit && e.day > 15) {
+                    return acc + (e.amount / 2)
+                }
+                return acc + e.amount
+            }, 0)
 
         const safeToSpend = bankBalance - pendingFixed - manualSavingsPool
         return income === 0 ? 0 : (safeToSpend < 0 ? 0 : safeToSpend)

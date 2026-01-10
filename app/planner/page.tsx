@@ -33,6 +33,7 @@ export default function PlannerPage() {
     const [name, setName] = useState("")
     const [amount, setAmount] = useState("")
     const [day, setDay] = useState("")
+    const [isSplit, setIsSplit] = useState(false)
 
     // Derived Date Info
     const monthKey = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, '0')}` // YYYY-MM
@@ -50,7 +51,8 @@ export default function PlannerPage() {
             updateFixedExpense(editingId, {
                 name,
                 amount: parseFormattedNumber(amount),
-                day: parseInt(day)
+                day: parseInt(day),
+                isSplit
             })
             setEditingId(null)
         } else {
@@ -58,6 +60,7 @@ export default function PlannerPage() {
                 name,
                 amount: parseFormattedNumber(amount),
                 day: parseInt(day),
+                isSplit
             })
         }
 
@@ -69,6 +72,7 @@ export default function PlannerPage() {
         setName("")
         setAmount("")
         setDay("")
+        setIsSplit(false)
         setEditingId(null)
     }
 
@@ -85,6 +89,7 @@ export default function PlannerPage() {
         setName(expense.name)
         setAmount(formatNumber(expense.amount))
         setDay(expense.day.toString())
+        setIsSplit(expense.isSplit || false)
         setEditingId(expense.id)
         setIsAdding(true)
     }
@@ -171,6 +176,18 @@ export default function PlannerPage() {
                                         onChange={e => handleNumericInputChange(e.target.value, setAmount)}
                                     />
                                     <Input type="number" placeholder={t("Day Placeholder")} value={day} onChange={e => setDay(e.target.value)} />
+                                </div>
+                                <div className="flex items-center justify-between p-3 bg-background rounded-xl border border-border/50">
+                                    <div className="flex flex-col">
+                                        <span className="text-xs font-bold">{t("Split Payment")}</span>
+                                        <span className="text-[10px] text-muted-foreground">{t("Split Hint")}</span>
+                                    </div>
+                                    <input
+                                        type="checkbox"
+                                        className="h-5 w-5 accent-primary rounded-md"
+                                        checked={isSplit}
+                                        onChange={(e) => setIsSplit(e.target.checked)}
+                                    />
                                 </div>
                                 <Button className="w-full rounded-xl" onClick={handleSave}>{editingId ? t("Update") : t("Save")}</Button>
                             </CardContent>
@@ -262,6 +279,11 @@ function SwipeableExpenseCard({ expense, status, isLate, isDueSoon, formatMoney,
                     )}>
                         <span className="text-[10px] font-medium uppercase leading-none mb-1">{t("Day Label")}</span>
                         <span className="text-lg font-bold leading-none">{expense.day}</span>
+                        {expense.isSplit && (
+                            <div className="absolute -top-1 -right-1 h-5 w-5 bg-primary text-white text-[8px] font-bold rounded-full flex items-center justify-center border-2 border-background shadow-sm">
+                                1/2
+                            </div>
+                        )}
                     </div>
 
                     <div className="flex-1 min-w-0">
