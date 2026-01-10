@@ -58,6 +58,7 @@ export interface AppSettings {
 interface FinanceContextType {
     user: User | null
     signOut: () => Promise<void>
+    updatePassword: (newPassword: string) => Promise<{ error: any }>
     transactions: Transaction[]
     fixedExpenses: FixedExpense[]
     categories: Category[]
@@ -239,6 +240,13 @@ const translations: Record<string, Record<string, string>> = {
         "Landing Feature Savings Desc": "Crea pozos de ahorro y alcanza tus objetivos paso a paso.",
         "Get Started": "Comenzar gratis",
         "Log In Landing": "Ya tengo cuenta",
+        "Change Password": "Cambiar Contraseña",
+        "New Password": "Nueva Contraseña",
+        "Confirm Password": "Confirmar Contraseña",
+        "Update Password": "Actualizar Contraseña",
+        "Passwords do not match": "Las contraseñas no coinciden",
+        "Password updated successfully": "Contraseña actualizada con éxito",
+        "Error updating password": "Error al actualizar la contraseña",
     },
     en: {
         "Balance Card": "Available Funds",
@@ -375,6 +383,13 @@ const translations: Record<string, Record<string, string>> = {
         "Landing Feature Savings Desc": "Create savings pools and reach your objectives step by step.",
         "Get Started": "Get Started Free",
         "Log In Landing": "I already have an account",
+        "Change Password": "Change Password",
+        "New Password": "New Password",
+        "Confirm Password": "Confirm Password",
+        "Update Password": "Update Password",
+        "Passwords do not match": "Passwords do not match",
+        "Password updated successfully": "Password updated successfully",
+        "Error updating password": "Error updating password",
     }
 }
 
@@ -423,6 +438,13 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
         setManualSavingsPool(0)
         setSettings({ currency: "USD", language: "es", userName: "Usuario", theme: "system" })
         localStorage.removeItem("finance-app-data")
+    }
+
+    const updatePassword = async (newPassword: string) => {
+        const { error } = await supabase.auth.updateUser({
+            password: newPassword
+        })
+        return { error }
     }
 
     // Load from localStorage ONLY if no user (offline mode)
@@ -849,6 +871,7 @@ export function FinanceProvider({ children }: { children: React.ReactNode }) {
             setManualSavingsPool: updateManualSavingsPool,
             user,
             signOut,
+            updatePassword,
             t,
             isSyncing
         }}>

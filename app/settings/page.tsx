@@ -14,7 +14,7 @@ import { motion, AnimatePresence } from "framer-motion"
 
 export default function SettingsPage() {
     const router = useRouter()
-    const { settings, updateSettings, categories, addCategory, deleteCategory, user, signOut, t } = useFinance()
+    const { settings, updateSettings, categories, addCategory, deleteCategory, user, signOut, updatePassword, t } = useFinance()
     const { setTheme, theme } = useTheme()
 
     // State for navigation within settings
@@ -263,6 +263,12 @@ export default function SettingsPage() {
                                                 <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">{t("Status")}</span>
                                                 <span className="px-2 py-0.5 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 rounded-full text-[10px] font-bold uppercase">{t("Active Session")}</span>
                                             </div>
+
+                                            {/* Change Password Feature */}
+                                            <div className="pt-4 border-t border-border/40">
+                                                <PasswordChangeForm t={t} updatePassword={updatePassword} />
+                                            </div>
+
                                             <div className="pt-4 border-t border-border/40">
                                                 <Button
                                                     variant="outline"
@@ -297,5 +303,108 @@ export default function SettingsPage() {
                 )}
             </AnimatePresence>
         </main>
+    )
+}
+
+function PasswordChangeForm({ t, updatePassword }: { t: any, updatePassword: any }) {
+    const [isOpen, setIsOpen] = useState(false)
+    const [newPassword, setNewPassword] = useState("")
+    const [confirmPassword, setConfirmPassword] = useState("")
+    const [loading, setLoading] = useState(false)
+    const [message, setMessage] = useState<{ text: string, type: "success" | "error" } | null>(null)
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault()
+        if (newPassword !== confirmPassword) {
+            setMessage({ text: t("Passwords do not match"), type: "error" })
+            return
+        }
+
+        setLoading(true)
+        setMessage(null)
+        const { error } = await updatePassword(newPassword)
+        setLoading(false)
+
+        if (error) {
+            setMessage({ text: t("Error updating password"), type: "error" })
+        } else {
+            setMessage({ text: t("Password updated successfully"), type: "success" })
+            setNewPassword("")
+            setConfirmPassword("")
+            setTimeout(() => {
+                setIsOpen(false)
+                setMessage(null)
+            }, 2000)
+        }
+    }
+
+    return (
+        <div className="space-y-4">
+            {!isOpen ? (
+                <Button
+                    variant="ghost"
+                    className="w-full h-12 rounded-2xl font-bold text-primary hover:bg-primary/5"
+                    onClick={() => setIsOpen(true)}
+                >
+                    <Icons.Lock className="h-5 w-5 mr-2" /> {t("Change Password")}
+                </Button>
+            ) : (
+                <motion.form
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    className="space-y-4 overflow-hidden"
+                    onSubmit={handleSubmit}
+                >
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-muted-foreground uppercase px-1">{t("New Password")}</label>
+                        <Input
+                            type="password"
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                            required
+                            className="bg-background rounded-xl border-none h-11"
+                        />
+                    </div>
+                    <div className="space-y-2">
+                        <label className="text-[10px] font-bold text-muted-foreground uppercase px-1">{t("Confirm Password")}</label>
+                        <Input
+                            type="password"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            required
+                            className="bg-background rounded-xl border-none h-11"
+                        />
+                    </div>
+
+                    {message && (
+                        <p className={cn(
+                            "text-xs font-bold text-center p-2 rounded-lg",
+                            message.type === "success" ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"
+                        )}>
+                            {message.text}
+                        </p>
+                    )}
+
+                    <div className="flex gap-2">
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            className="flex-1 h-11 rounded-xl font-bold"
+                            onClick={() => { setIsOpen(false); setMessage(null) }}
+                            disabled={loading}
+                        >
+                            {t("Clear")}
+                        </Button>
+                        <Button
+                            type="submit"
+                            className="flex-1 h-11 rounded-xl font-bold"
+                            disabled={loading || !newPassword || !confirmPassword}
+                        >
+                            {loading ? t("Processing") : t("Update Password")}
+                        </Button>
+                    </div>
+                </motion.form>
+            )}
+        </div>
     )
 }
